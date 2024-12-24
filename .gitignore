@@ -6,6 +6,9 @@ __pycache__/
 # Config File
 config.yaml
 
+# DB file
+test.db
+
 # C extensions
 *.so
 

@@ -38,17 +38,19 @@ class queue():
             warningLog('Task cancelled.')
 
     async def postQueueEmbed(self, discordID, action, color):
-        print("Reached")
-        #if self.queueEmbed != None:
-        #    await self.queueEmbed.edit(embed=await embeds.queueEmbed(self.queue))
-        #    await self.notiEmbed.edit(embed=await embeds.queueNotiEmbed(discordID, action, color))
-        self.queueEmbed = await self.client.get_channel(config.queueChannelID).send(embed=await embeds.queueEmbed(self.queue))
-        self.notiEmbed = await self.client.get_channel(config.queueChannelID).send(embed=await embeds.queueNotiEmbed(discordID, action, color), view=self.view)
-        #warningLog(self.queueEmbed)
-        print(self.queueEmbed)
+        try:
+            if self.queueEmbed != None:
+                await self.queueEmbed.edit(embed=await embeds.queueEmbed(self.queue))
+                await self.notiEmbed.edit(embed=await embeds.queueNotiEmbed(discordID, action, color))
+                successLog('Queue Embed updated!')
+            else:
+                self.queueEmbed = await self.client.get_channel(config.queueChannelID).send(embed=await embeds.queueEmbed(self.queue))
+                self.notiEmbed = await self.client.get_channel(config.queueChannelID).send(embed=await embeds.queueNotiEmbed(discordID, action, color), view=self.view)
+                successLog('Queue Embed posted!')
+        except Exception as e:
+            errorLog(f"Failed to post Queue Embed: {e}")
         
     async def createButtons(self):
-        print("Reached")
         joinButton = Button(label="Join", style=discord.ButtonStyle.green)
         leaveButton = Button(label="Leave", style=discord.ButtonStyle.danger)
         joinButton.callback = self.joinCallback
@@ -127,11 +129,11 @@ class queue():
                 if (len(self.queue) != 0):
                     self.clicked = time.time()
                 self.cooldowns[discordID] = time.time() + config.buttonCooldown
-        except discord.errors.NotFound:
+        except Exception as e:
             # Handle error accordingly by checking if queue is still full and continue to draft, otherwise no action
-            errorLog('Discord Not Found Error when adding a player to the Queue.')
+            errorLog(f"Failed to remove Player to Queue: {e}")
             if not self.beginDraft:
-                if len(self.queue) >= 6:
+                if len(self.queue) >= config.playerCount:
                     await self.beginDraft()
                     return
 
@@ -143,18 +145,17 @@ class queue():
         if await self.checkIfPlayerInQueue(discordID):
             return 2
         # 3: Player is not Registered
-        #if not await db_queries.checkPlayerinDB(discordID):
-        #    return 3
+        if not await db_queries.checkPlayerinDB(self, discordID):
+            return 3
         # 4: Player is in an Active Match already
         if await self.checkIfPlayerInMatch(discordID):
             return 4
         # 5: Add Player to Queue and Check if Full
         self.queue.append(discordID)
         await self.postQueueEmbed(discordID, "joined", 0x90EE90)
-        successLog(f'Discord ID {discordID} has been added to the queue successfully.')
+        successLog(f'Discord ID {discordID} has been added to the queue.')
         return 5
             
-        
     async def removePlayerFromQueue(self, discordID):
         print("Implement Me")
     
@@ -162,12 +163,13 @@ class queue():
         print("Implement Me")
         
     async def checkIfPlayerInQueue(self, discordID):
-        print("Implement Me")
+        return False
         
     async def checkIfPlayerInMatch(self, discordID):
-        print("Implement Me")
-        
-        print("Implement Me")
+        return False
+    
+    async def checkIfCooldownActive(self, discordID):    
+        return False
         
     async def checkForInactivity(self):
         print("Implement Me")

@@ -7,7 +7,7 @@ def getPrefix():
     
     returns: (string) with proper formatting and styling.
     """
-    return (Fore.GREEN + time.strftime("%H:%M:%S EST", time.localtime()) + Fore.WHITE + Style.BRIGHT)
+    return (Fore.GREEN + time.strftime("%H:%M:%S EST |", time.localtime()) + Fore.WHITE + Style.BRIGHT)
     
 
 def infoLog(messageOne, messageTwo):
@@ -20,7 +20,7 @@ def successLog(message):
     """
     successLog sends an information message to console with proper formatting with time and color styling for readibility. 
     """
-    print(getPrefix() + Fore.GREEN + ' ' + message)
+    print(getPrefix() + Fore.GREEN + ' Success: ' + message)
        
 def warningLog(message):
     """

@@ -46,7 +46,7 @@ class Client(commands.Bot):
             await message.delete()
         
         # Initializes queue system.
-        queue(Client)
+        queue(client)
         
         # Generate a match instance, launch leaderboard, and clean up class afterward. 
         #matchInstance = match(self, None, None, None, None, None)
