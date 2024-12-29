@@ -12,7 +12,7 @@ class Client(commands.Bot):
         """
         __init__ initializes the class (bot) with a custom command prefix and intents for neccessary events.
         """
-        super().__init__(command_prefix=commands.when_mentioned_or(config.prefix), intents=discord.Intents().all())
+        super().__init__(command_prefix=commands.when_mentioned_or(config.prefix), help_command=None, intents=discord.Intents().all())
         self.activeLB = None
         self.cogslist = [
             "database.db",

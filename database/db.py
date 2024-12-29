@@ -10,9 +10,9 @@ class database(commands.Cog):
         asyncio.create_task(self.seasonsDataDBSetup())
         
     async def allTimeDataDBSetup(self):
-        '''
+        """
         allTimeDataDBSetup initializes the all-time data table that tracks a player statistics.
-        '''
+        """
         async with aiosqlite.connect(f'{config.dbName}.db') as db:
             # Initializes All-Time Data table if it does not exist on start-up.
             sqlQuery = f'''CREATE TABLE IF NOT EXISTS AllTimeData (
@@ -43,9 +43,9 @@ class database(commands.Cog):
             await db.execute(sqlQuery)
         
     async def seasonsDataDBSetup(self):
-        '''
+        """
         allTimeDataDBSetup initializes the neccessary season(s) data tables that track player statistics.
-        '''
+        """
         async with aiosqlite.connect(f'{config.dbName}.db') as db: 
             # Initializes Season(s) Data table(s) if it does not exist on start-up.
             for x in range(1, config.activeSeason + 1):
