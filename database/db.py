@@ -48,8 +48,8 @@ class database(commands.Cog):
         """
         async with aiosqlite.connect(f'{config.dbName}.db') as db: 
             # Initializes Season(s) Data table(s) if it does not exist on start-up.
-            for x in range(1, config.activeSeason + 1):
-                sqlQuery = f'''CREATE TABLE IF NOT EXISTS season{x}Data (
+            for i in range(1, config.activeSeason + 1):
+                sqlQuery = f'''CREATE TABLE IF NOT EXISTS season{i}Data (
                         DiscordID INT PRIMARY KEY,
                         Score INT DEFAULT 0,
                         Goals INT DEFAULT 0,

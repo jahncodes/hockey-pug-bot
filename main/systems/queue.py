@@ -56,7 +56,7 @@ class queue():
         # On Class initialization
         try:
             self.cancelledTasks.append(asyncio.create_task(self.createButtons()))
-            self.cancelledTasks.append(asyncio.create_task(self.postQueueEmbed('', 'joined', 0xfff47c)))
+            self.cancelledTasks.append(asyncio.create_task(self.postQueueEmbed('', 'joined', config.redColor)))
         except asyncio.CancelledError:
             successLog('Asyncio Task Cancelled.')
 
@@ -114,16 +114,16 @@ class queue():
                 
             if (result == 1):
                 # Case 1: Player has Active Cooldown
-                await interaction.response.send_message(f"✖ You have an active cooldown of {round(max(0, self.cooldowns[discordID] - time.time()), 1)} seconds!", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You have an active cooldown of {round(max(0, self.cooldowns[discordID] - time.time()), 1)} seconds!'), ephemeral=True)
             elif (result == 2):
                 # Case 2: Player is Already in Queue
-                await interaction.response.send_message("✖ You are already in the Queue.", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You are already in the Queue!'), ephemeral=True)
             elif (result == 3):
                 # Case 3: Player is not Registered
-                await interaction.response.send_message("✖ You are not registered.", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You are not registered!'), ephemeral=True)
             elif (result == 4):
                 # Case 4: Player is in Active Match
-                await interaction.response.send_message("✖ You are already in an active match! If the game just ended, please wait for the results to be processed.", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You are already in an active match! If the game just ended, please wait for the results to be processed.'), ephemeral=True)
             else:
                 # Case 5: Player has been added to Queue
                 await interaction.response.defer()
@@ -163,13 +163,13 @@ class queue():
             
             if (result == 1):
                 # Case 1: Player has Active Cooldown
-                await interaction.response.send_message(f"✖ You have an active cooldown of {round(max(0, self.cooldowns[discordID] - time.time()), 1)} seconds!", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You have an active cooldown of {round(max(0, self.cooldowns[discordID] - time.time()), 1)} seconds!'), ephemeral=True)
             elif (result == 2):
                 # Case 2: Player is not Registered
-                await interaction.response.send_message("✖ You are not registered.", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You are not registered!'), ephemeral=True)
             elif (result == 3):
                 # Case 3: Player is not in Queue
-                await interaction.response.send_message("✖ You are not in the Queue.", ephemeral=True)
+                await interaction.response.send_message(embed=await embeds.notificationErrorEmbed(f'You are already in the Queue!'), ephemeral=True)
             else:
                 # Case 4: Remove Player from Queue
                 await interaction.response.defer()
@@ -210,7 +210,7 @@ class queue():
         # 5: Add Player to Queue and Check if Full
         else:
             self.queue.append(discordID)
-            await self.postQueueEmbed(discordID, "joined", 0x90EE90)
+            await self.postQueueEmbed(discordID, "joined", config.greenColor)
             successLog(f'Discord ID: {discordID} has been added to the queue.')
             return 5
             
@@ -237,7 +237,7 @@ class queue():
         # 4: Remove Player from Queue
         else:
             self.queue.remove(discordID)
-            await self.postQueueEmbed(discordID, "left", 0xd83c3e)
+            await self.postQueueEmbed(discordID, "left", config.redColor)
             successLog(f'Discord ID: {discordID} has been removed from the queue.')
             return 4
             
@@ -295,12 +295,12 @@ class queue():
                         user = await self.client.fetch_user(i)
                         
                         try:
-                            await user.send(f"THe queue has been idle for more than {int(config.queueInactivity / 60)} minutes, thus you have been automatically removed from it. Feel free to join again!")
+                            await user.send(embed=await embeds.notificationErrorEmbed(f'The queue has been idle for more than {int(config.queueInactivity / 60)} minutes, thus you have been automatically removed from it. Feel free to join again!'))
                         except Exception as e:
-                            await self.client.get_channel(config.discussionChannelID).send(f"<@{i}> THe queue has been idle for more than {int(config.queueInactivity / 60)} minutes, thus you have been automatically removed from it. Feel free to join again!")
+                            await self.client.get_channel(config.discussionChannelID).send(embed=await embeds.notificationErrorEmbed(f'The queue has been idle for more than {int(config.queueInactivity / 60)} minutes, thus you have been automatically removed from it. Feel free to join again!'))
                             errorLog(f'Failed to send Player DM when notifying of queue inactivity. Using alternative method to send notification in server: {e}')
                     self.queue.clear()
-                    await self.postQueueEmbed("", "joined", 0xfff47c)
+                    await self.postQueueEmbed("", "joined", config.redColor)
                     self.clicked = None
                     successLog(f'Queue has been cleared due to inactivity after {int(config.queueInactivity / 60)} minutes.')
         
@@ -308,7 +308,7 @@ class queue():
         """
         notifyAllPlayers will sleep for specified config time when queue hits 66% full or more and then will check if it is still 4/6 or >, and if so notify all players with a specified role to join the queue.
         """    
-        # A notification to join Queue is already on-going
+        # A notification to join queue is already on-going
         if self.activeNoti:
             return
         self.activeNoti = True
@@ -319,11 +319,12 @@ class queue():
             successLog('Asyncio Task Cancelled.')
             
         # 1: Queue threshold is not reached yet!
-        if (len(self.queue) < 4 or (len(self.queue) >= 6)):
+        if (len(self.queue) < round(len(self.queue) * 66.6) or (len(self.queue) >= config.playerCount)):
             return
         # 2: Notify players!
         else:
-            await self.client.get_channel(config.discussionChannelID).send(f"<@&{config.notificationRoleID}> {len(self.queue)}/6 players in Queue! Get pugging!")
+            await self.client.get_channel(config.discussionChannelID).send(f"<@&{config.notificationRoleID}>")
+            await self.client.get_channel(config.discussionChannelID).send(embed=await embeds.notificationEmbed(f'{len(self.queue)}/6 players in Queue! Get pugging!'))
             self.activeNoti = False
             
             

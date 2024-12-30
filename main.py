@@ -16,6 +16,7 @@ class Client(commands.Bot):
         self.activeLB = None
         self.cogslist = [
             "database.db",
+            "commands.user_commands"
         ]
     
     async def setup_hook(self):
@@ -28,8 +29,7 @@ class Client(commands.Bot):
     async def on_ready(self):
         """
         on_ready prints bot information, clears channel history where old embeds may be, initializes systems, and sets the bot's activity presence.
-        """
-        
+        """  
         # Print information to the console when the bot is ready to ensure correct versions and log-in.
         warningLog("Ensure information below is accurate before continuing.")
         infoLog(f"Logged in as:", f"{self.user.name}")

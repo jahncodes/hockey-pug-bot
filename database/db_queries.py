@@ -1,11 +1,13 @@
 import aiosqlite
 import configparse as config
+from main import embeds
 
 
 async def fetchPlayerAllTimeData(self, discordID):
     """
     fetchPlayerAllTimeData uses an sql query to fetch all-time data for a player using their discord ID.
-    discordID: the discord ID of the player we want the all-time data for.
+    params:
+        discordID: the discord ID of the player we want the all-time data for.
     returns: (tupile) containing all the listed statistics that connects with the discordID.
     """
     async with aiosqlite.connect(f'{config.dbName}.db') as db:
@@ -22,8 +24,9 @@ async def fetchPlayerAllTimeData(self, discordID):
 async def fetchPlayerSeasonData(self, discordID, season):
     """
     fetchPlayerAllTimeData uses an sql query to fetch the specified season data for a player using their discord ID.
-    discordID: the discord ID of the player we want the season data for.
-    season: The season we want the statistics for.
+    params:
+        discordID: the discord ID of the player we want the season data for.
+        season: The season we want the statistics for.
     returns: (tupile) containing all the listed statistics that connects with the discordID in the specified season table.
     """
     async with aiosqlite.connect(f'{config.dbName}.db') as db:
@@ -37,10 +40,11 @@ async def fetchPlayerSeasonData(self, discordID, season):
             # Return the result or None if entry does not exist
             return result
             
-async def checkPlayerinDB(self, discordID):
+async def checkPlayerDiscordinDB(self, discordID):
     """
     checkPlayerinDB uses an sql query to check if the specified ID exists in the database.
-    discordID: the discord ID of the user we are checking to see if they exist
+    params:
+        discordID: the discord ID of the user we are checking to see if they exist
     returns: (boolean) true if the user exists in the database, false if they don't exist
     """
     async with aiosqlite.connect(f'{config.dbName}.db') as db:
@@ -51,3 +55,57 @@ async def checkPlayerinDB(self, discordID):
             result = await cursor.fetchone()
                 
             return result is not None
+        
+async def checkPlayerSlapinDB(self, slapID):
+    """
+    checkPlayerinDB uses an sql query to check if the specified ID exists in the database.
+    params:
+        slapID: the slap ID of the user we are checking to see if they exist
+    returns: (boolean) true if the user exists in the database, false if they don't exist
+    """
+    async with aiosqlite.connect(f'{config.dbName}.db') as db:
+        # SQL query to check if the specified discordID is in our all-time data table
+        sqlQuery = f'SELECT 1 FROM AllTimeData WHERE SlapID = ? LIMIT 1'
+        # Execute query with params (discordID)
+        async with db.execute(sqlQuery, (slapID,)) as cursor:
+            result = await cursor.fetchone()
+                
+            return result is not None
+        
+async def registerPlayerInDB(self, discordID, slapID):
+    """
+    registerPlayerInDB is not a query, but links discord user to in-game through IDs and creates entries into table as needed. 
+    params:
+        discordID: the discord ID of the user we are registering.
+        slapID: the slapshot ID of the user we are registering.
+    returns:
+        (boolean) True: if the discordID/slapID was successfully added to the database. 
+        (boolean) False: if the discordID/slapID is already in the database.
+    """
+    async with aiosqlite.connect(f'{config.dbName}.db') as db:
+        # Ensure discordID and slapID is not in the database already.
+        if (await checkPlayerDiscordinDB(discordID) and await checkPlayerSlapinDB(slapID)):
+            return False
+        
+        # Add User to DB
+        sqlAllTimeEntry = (f'INSERT INTO AllTimeData (DiscordID, SlapID) VALUES (?, ?)')
+        allTimeValues = (discordID, slapID)   
+        try:
+            # Execute All-Time Data Table entry
+            await db.execute(sqlAllTimeEntry, allTimeValues)
+            
+            # Execute Season Data Table(s) entry
+            for i in range(1, config.activeSeason + 1):
+                sqlSeasonEntry = (f'INSERT INTO season{i}Data (DiscordID) VALUES (?, ?)')
+                seasonValues = (discordID)
+                
+                await db.execute(sqlSeasonEntry, seasonValues)
+            
+            await db.commit()
+            return True
+        except Exception as e:
+            await embeds.notificationErrorEmbed(f'Failed to add player to the database: {e}')
+            return False
+            
+            
+    
