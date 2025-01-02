@@ -3,7 +3,7 @@ import configparse as config
 from main import embeds
 
 
-async def fetchPlayerAllTimeData(self, discordID):
+async def fetchPlayerAllTimeData(discordID):
     """
     fetchPlayerAllTimeData uses an sql query to fetch all-time data for a player using their discord ID.
     params:
@@ -21,17 +21,17 @@ async def fetchPlayerAllTimeData(self, discordID):
             # Return the result or None if entry does not exist
             return result
             
-async def fetchPlayerSeasonData(self, discordID, season):
+async def fetchPlayerSeasonData(discordID, seasonNumber):
     """
     fetchPlayerAllTimeData uses an sql query to fetch the specified season data for a player using their discord ID.
     params:
         discordID: the discord ID of the player we want the season data for.
-        season: The season we want the statistics for.
+        seasonNumber: The season number we want the statistics for.
     returns: (tupile) containing all the listed statistics that connects with the discordID in the specified season table.
     """
     async with aiosqlite.connect(f'{config.dbName}.db') as db:
-        # SQL query to fetch all the columns for the spciefied discordID in the specified season table
-        sqlQuery = f'SELECT * FROM season{season}Data WHERE discordID = ?'
+        # SQL query to fetch all the columns for the specified discordID in the specified season table
+        sqlQuery = f'SELECT * FROM season{seasonNumber}Data WHERE discordID = ?'
         # Execute query with params (discordID)
         async with db.execute(sqlQuery, (discordID,)) as cursor:
             # Fetch the first result (discordID is primary key so it is unique)
@@ -40,7 +40,7 @@ async def fetchPlayerSeasonData(self, discordID, season):
             # Return the result or None if entry does not exist
             return result
             
-async def checkPlayerDiscordinDB(self, discordID):
+async def checkPlayerDiscordinDB(discordID):
     """
     checkPlayerinDB uses an sql query to check if the specified ID exists in the database.
     params:
@@ -56,7 +56,7 @@ async def checkPlayerDiscordinDB(self, discordID):
                 
             return result is not None
         
-async def checkPlayerSlapinDB(self, slapID):
+async def checkPlayerSlapinDB(slapID):
     """
     checkPlayerinDB uses an sql query to check if the specified ID exists in the database.
     params:
@@ -72,7 +72,7 @@ async def checkPlayerSlapinDB(self, slapID):
                 
             return result is not None
         
-async def registerPlayerInDB(self, discordID, slapID):
+async def registerPlayerInDB(discordID, slapID):
     """
     registerPlayerInDB is not a query, but links discord user to in-game through IDs and creates entries into table as needed. 
     params:
@@ -87,6 +87,9 @@ async def registerPlayerInDB(self, discordID, slapID):
         if (await checkPlayerDiscordinDB(discordID) and await checkPlayerSlapinDB(slapID)):
             return False
         
+        print(f'Discord ID in DB: {await checkPlayerDiscordinDB(discordID)}')
+        print(f'Slap ID in DB: {await checkPlayerSlapinDB(slapID)}')
+        
         # Add User to DB
         sqlAllTimeEntry = (f'INSERT INTO AllTimeData (DiscordID, SlapID) VALUES (?, ?)')
         allTimeValues = (discordID, slapID)   
@@ -96,12 +99,13 @@ async def registerPlayerInDB(self, discordID, slapID):
             
             # Execute Season Data Table(s) entry
             for i in range(1, config.activeSeason + 1):
-                sqlSeasonEntry = (f'INSERT INTO season{i}Data (DiscordID) VALUES (?, ?)')
-                seasonValues = (discordID)
+                sqlSeasonEntry = (f'INSERT INTO season{i}Data (DiscordID) VALUES (?)')
+                seasonValues = ((discordID,))
                 
                 await db.execute(sqlSeasonEntry, seasonValues)
             
             await db.commit()
+            print("Player added to DB!")
             return True
         except Exception as e:
             await embeds.notificationErrorEmbed(f'Failed to add player to the database: {e}')

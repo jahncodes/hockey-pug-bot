@@ -18,10 +18,12 @@ class database(commands.Cog):
             sqlQuery = f'''CREATE TABLE IF NOT EXISTS AllTimeData (
                     DiscordID INT PRIMARY KEY,
                     SlapID INT,
-                    SkillRating INT DEFAULT {config.startingSkillRating},
+                    PeakMMR INT DEFAULT {config.startingSkillRating},
+                    Xp INT DEFAULT 0,
                     Score INT DEFAULT 0,
                     Goals INT DEFAULT 0,
                     Assists INT DEFAULT 0,
+                    Points INT DEFAULT 0,
                     Shots INT DEFAULT 0,
                     PostHits INT DEFAULT 0,
                     Passes INT DEFAULT 0,
@@ -36,9 +38,8 @@ class database(commands.Cog):
                     Losses INT DEFAULT 0,
                     Gp INT DEFAULT 0,
                     Streak INT DEFAULT 0,
-                    Points INT DEFAULT 0,
-                    PlusMinus INT DEFAULT 0,
-                    Xp INT DEFAULT 0)'''
+                    PlusMinus INT DEFAULT 0
+                    )'''
                     
             await db.execute(sqlQuery)
         
@@ -51,9 +52,11 @@ class database(commands.Cog):
             for i in range(1, config.activeSeason + 1):
                 sqlQuery = f'''CREATE TABLE IF NOT EXISTS season{i}Data (
                         DiscordID INT PRIMARY KEY,
+                        MMR INT DEFAULT {config.startingSkillRating},
                         Score INT DEFAULT 0,
                         Goals INT DEFAULT 0,
                         Assists INT DEFAULT 0,
+                        Points INT DEFAULT 0,
                         Shots INT DEFAULT 0,
                         PostHits INT DEFAULT 0,
                         Passes INT DEFAULT 0,
@@ -68,9 +71,6 @@ class database(commands.Cog):
                         Losses INT DEFAULT 0,
                         Gp INT DEFAULT 0,
                         Streak INT DEFAULT 0,
-                        Points INT DEFAULT 0,
-                        PlusMinus INT DEFAULT 0,
-                        Xp INT DEFAULT 0,
                         FOREIGN KEY (DiscordID) REFERENCES AllTimeData(DiscordID) ON DELETE CASCADE)'''
                 
                 await db.execute(sqlQuery)

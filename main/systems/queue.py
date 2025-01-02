@@ -98,7 +98,7 @@ class queue():
 
     async def joinCallback(self, interaction):
         """
-        joinCallback is a callback function for the join button that specifies how we handle a button click.
+        zjoinCallback is a callback function for the join button that specifies how we handle a button click.
         params:
             interaction: The interaction from the user clicking our button.
         """
@@ -202,7 +202,7 @@ class queue():
         elif (await self.checkIfPlayerInQueue(discordID)):
             return 2
         # 3: Player is not Registered
-        elif (not await db_queries.checkPlayerinDB(self, discordID)):
+        elif (not await db_queries.checkPlayerDiscordinDB(discordID)):
             return 3
         # 4: Player is in an Active Match already
         elif (await self.checkIfPlayerInMatch(discordID)):
@@ -229,7 +229,7 @@ class queue():
         if (await self.checkIfCooldownActive(discordID)):
             return 1
         # 2: Player is not Registered
-        elif (not await db_queries.checkPlayerinDB(self, discordID)):
+        elif (not await db_queries.checkPlayerDiscordinDB(discordID)):
             return 2
         # 3: Player is not in the Queue
         elif (not await self.checkIfPlayerInQueue(discordID)):

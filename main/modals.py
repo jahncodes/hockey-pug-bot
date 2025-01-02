@@ -4,10 +4,10 @@ import discord
 
 class registerModal(Modal, title=f'{config.footer} Register Form'):
     info = TextInput(
-        label="How to find Slap ID!", 
-        placeholder="Slapshot ID can be found under 'Player' tab in-game, and clicking 'identity.' You should see the ID as a number in small white text at the top of the UI.",
+        label="How to find Slap ID! (NO ANSWER REQUIRED)", 
+        placeholder="Found in-game through Player -> Identity -> Top of UI.",
         required=False)
-    game_id = TextInput(label='Slapshot ID', placeholder='Example: 429195', style=discord.TextStyle.short)
+    game_id = TextInput(label='Could you provide your Slapshot ID?', placeholder='Example: 429195', style=discord.TextStyle.short)
     
     def __init(self):
         super().__init__()

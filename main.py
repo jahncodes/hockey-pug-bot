@@ -26,6 +26,8 @@ class Client(commands.Bot):
         for ext in self.cogslist:
             await self.load_extension(ext)
             
+        await self.tree.sync(guild=discord.Object(config.serverID))
+            
     async def on_ready(self):
         """
         on_ready prints bot information, clears channel history where old embeds may be, initializes systems, and sets the bot's activity presence.
@@ -36,7 +38,7 @@ class Client(commands.Bot):
         infoLog(f"Discord Version:", f"{discord.__version__}")
         infoLog(f"Python Version:", str(platform.python_version()))
         infoLog(f"Hockey PUG Bot Version 2.0 by:", "John")
-        await self.tree.sync()
+        await self.tree.sync(guild=discord.Object(config.serverID))
         await self.wait_until_ready()
         
         # Clear channel history where old embeds may be

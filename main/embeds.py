@@ -119,7 +119,7 @@ async def queueNotiEmbed(discordID, action, color):
 DRAFT EMBEDS
 """
 
-async def draftEmbed():
+async def draftEmbed(playerDiscordID):
     """
     IMPLEMENT ME!
     """
@@ -131,3 +131,70 @@ async def draftEmbed():
 """
 MATCH EMBEDS
 """
+
+
+
+"""
+STAT EMBEDS
+"""
+async def statEmbed(seasonNumber, userStatData, discordUser):
+    title = discordUser.display_name + "'s"
+    
+    # Set Title (using number logic: 0 is false, any other number = True)
+    embed = discord.Embed(colour=config.embedTheme)
+    
+    # Set Thumbnail
+    if discordUser.avatar is None:
+        embed.set_thumbnail(url=config.defaultPicture)
+    else:
+        embed.set_thumbnail(url=discordUser.avatar._url)
+    
+    if seasonNumber:
+        title += f' Season {seasonNumber} Statistics'
+        embed.title = title
+        embed.add_field(name='MMR', value=userStatData[1], inline=True)
+        embed.add_field(name="Score", value=userStatData[2], inline=True)
+        embed.add_field(name="Goals", value=userStatData[3], inline=True)
+        embed.add_field(name="Assists", value=userStatData[4], inline=True)
+        embed.add_field(name="Points", value=userStatData[5], inline=True)
+        embed.add_field(name="Shots", value=userStatData[6], inline=True)
+        embed.add_field(name="Posts Hit", value=userStatData[7], inline=True)
+        embed.add_field(name="Passes", value=userStatData[8], inline=True)
+        embed.add_field(name="Saves", value=userStatData[9], inline=True)
+        embed.add_field(name="Blocks", value=userStatData[10], inline=True)
+        embed.add_field(name="Takeaways", value=userStatData[11], inline=True)
+        embed.add_field(name="Turnovers", value=userStatData[12], inline=True)
+        embed.add_field(name="Faceoffs Won", value=userStatData[13], inline=True)
+        embed.add_field(name="Faceoffs Lost", value=userStatData[14], inline=True)
+        embed.add_field(name="Possession", value=f'{userStatData[15]} seconds', inline=True)
+        embed.add_field(name="Wins", value=userStatData[16], inline=True)
+        embed.add_field(name="Losses", value=userStatData[17], inline=True)
+        embed.add_field(name="Games Played", value=userStatData[18], inline=True)
+    else:
+        title += f' All-Time Profile'
+        embed.title = title
+        embed.add_field(name='Slap ID', value=userStatData[1], inline=True)
+        embed.add_field(name='Peak MMR', value=userStatData[2], inline=True)
+        embed.add_field(name='XP Points', value=userStatData[3], inline=True)
+        embed.add_field(name="Score", value=userStatData[4], inline=True)
+        embed.add_field(name="Goals", value=userStatData[5], inline=True)
+        embed.add_field(name="Assists", value=userStatData[6], inline=True)
+        embed.add_field(name="Points", value=userStatData[7], inline=True)
+        embed.add_field(name="Shots", value=userStatData[8], inline=True)
+        embed.add_field(name="Posts Hit", value=userStatData[9], inline=True)
+        embed.add_field(name="Passes", value=userStatData[10], inline=True)
+        embed.add_field(name="Saves", value=userStatData[11], inline=True)
+        embed.add_field(name="Blocks", value=userStatData[12], inline=True)
+        embed.add_field(name="Takeaways", value=userStatData[13], inline=True)
+        embed.add_field(name="Turnovers", value=userStatData[14], inline=True)
+        embed.add_field(name="Faceoffs Won", value=userStatData[15], inline=True)
+        embed.add_field(name="Faceoffs Lost", value=userStatData[16], inline=True)
+        embed.add_field(name="Possession", value=f'{userStatData[17]} seconds', inline=True)
+        embed.add_field(name="+/-", value=f"{'+' + str(userStatData[21]) if userStatData[21] > 0 else ('-' + str(abs(userStatData[21]))) if userStatData[21] < 0 else userStatData[21]}", inline=True)
+        embed.add_field(name="Wins", value=userStatData[18], inline=True)
+        embed.add_field(name="Losses", value=userStatData[19], inline=True)
+        embed.add_field(name="Games Played", value=userStatData[20], inline=True)
+    
+    embed.set_footer(text=f'{config.footer} | Player Statistics', icon_url=config.footerIcon)
+    
+    return embed
