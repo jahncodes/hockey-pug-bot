@@ -16,7 +16,8 @@ class Client(commands.Bot):
         self.activeLB = None
         self.cogslist = [
             "database.db",
-            "commands.user_commands"
+            "commands.user_commands",
+            "commands.test_commands"
         ]
     
     async def setup_hook(self):
